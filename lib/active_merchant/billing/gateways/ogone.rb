@@ -155,6 +155,7 @@ module ActiveMerchant #:nodoc:
         add_address(post, payment_source, options)
         add_customer_data(post, options)
         add_money(post, money, options)
+        add_payment_method(post, options)
         commit(action, post)
       end
 
@@ -167,6 +168,7 @@ module ActiveMerchant #:nodoc:
         add_address(post, payment_source, options)
         add_customer_data(post, options)
         add_money(post, money, options)
+        add_payment_method(post, options)
         commit(action, post)
       end
 
@@ -178,6 +180,7 @@ module ActiveMerchant #:nodoc:
         add_invoice(post, options)
         add_customer_data(post, options)
         add_money(post, money, options)
+        add_payment_method(post, options)
         commit(action, post)
       end
 
@@ -318,6 +321,18 @@ module ActiveMerchant #:nodoc:
       def add_customer_data(post, options)
         add_pair post, 'EMAIL',       options[:email]
         add_pair post, 'REMOTE_ADDR', options[:ip]
+      end
+
+      def add_payment_method(post, options)
+        return if options[:payment_method].blank?
+
+        add_pair post, 'PM', options[:payment_method]
+
+        if options[:payment_method] == 'Direct Debits DE'
+          post.delete 'CVC'
+          post['CARDNO'] = options[:iban]
+          post['ED'] = '9999'
+        end
       end
 
       def add_address(post, creditcard, options)
